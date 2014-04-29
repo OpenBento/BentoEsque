@@ -1,0 +1,47 @@
+==============
+TEMPLATE CODE:
+==============
+
+<iframe id='bentoEsque' frameborder='0' scrolling='no' style='width:100%;height:1000px;'></iframe>
+
+<script type="text/javascript">
+
+	// Clean 'Program' and 'Callsign' variables
+	function fixedEncodeURI (str) {
+		return(encodeURI(str.replace(/\s+/g, '-').toLowerCase()));
+	}
+
+	// Clean 'Schedule_ID' and 'Cove_ID' variables
+	function cleanIntegers (str) {
+		return(str.replace(/[^\d.]/g, ""));
+	}
+
+	// Generate URL
+	{% if "Other" in Program %}
+	var url = "http://support.pbssocal.org/bentoesque/iframe.php?type=2&callsign=" + fixedEncodeURI('{{ Callsign }}') + "&schedule_id=" + cleanIntegers('{{ Other_Schedule_ID }}') + "&cove_id=" + cleanIntegers('{{ Other_Cove_ID }}');
+	{% else %}
+	var url = "http://support.pbssocal.org/bentoesque/iframe.php?type=1&callsign=" + fixedEncodeURI('{{ Callsign }}') + "&program=" + fixedEncodeURI('{{ Program }}');
+	{% endif %}
+
+	// Set URL for iFrame
+	document.getElementById("bentoEsque").src = url;
+
+</script>
+
+===================
+STANDARD VARIABLES:
+===================
+Name: Callsign
+Widget: Text Field
+
+Name: Other_Cove_ID
+Widget: Text Field
+
+Name: Other_Schedule_ID
+Widget: Text Field
+
+====================
+DROP DOWN VARIABLES:
+====================
+Name: Program
+Choices: American Experience, American Masters, Antiques Roadshow, Call the Midwife, Charlie Rose, Frontline, Great Performances, Independent Lens, Masterpiece, NATURE, NOVA, PBS NewsHour, POV, Other
