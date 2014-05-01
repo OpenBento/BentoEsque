@@ -17,8 +17,8 @@ Smart Snippet Usage
 - Display_Description - *true or false, to display the show's description (only if View_Type = 1)*
 - Display_Title - *true or false, to display the show's title (only if View_Type = 1)*
 - Program - *select either a national program or "Other"*
-- Video_Portal_URL
-- View_Type - *View_Type = 1, for main main content areas, and View_Type = 2, for a Right rail widget for related videos
+- Video_Portal_URL - *the URL for your station's video portal*
+- View_Type - *View_Type = 1, for main main content areas, and View_Type = 2, for a Right rail widget for related videos*
 
 **Optional:**
 - Other_Cove_ID - *Only used if Program type is "Other" to add your own local shows*
