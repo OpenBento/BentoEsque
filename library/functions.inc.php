@@ -15,7 +15,7 @@
 				$output = preg_replace('/[^0-9]/', "", $output);
 				break;
 			case 4:
-				$output = preg_replace ('/[^A-Za-z0-9._\- ]/', "", $output);
+				$output = preg_replace ('/[^A-Za-z0-9:._\- ]/', "", $output);
 				break;
 		}
 		return $output;
@@ -28,7 +28,7 @@
 			" - Trailer",
 			" - Full Program",
 			" - Full Film");
-		$output = str_replace($remove, "", $input);
+		$output = str_replace($remove, "", trim($input));
 		$output = preg_replace('/ Preview$/', '', $output);
 		return $output;
 	}

@@ -1,0 +1,6 @@
+1 - Call Sign Not Supplied
+2 - Program Name Not Supplied
+3 - Schedule ID and/or COVE ID Not Supplied
+4 - National Program Not Matched
+5 - No Upcoming Schedule And COVE Asset Found
+6 - Portal Not Supplied

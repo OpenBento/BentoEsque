@@ -6,20 +6,6 @@
 		// Callsign & Program IDs Variables
 		protected $callsign = NULL;
 		protected $program = array(0, 0);
-		protected $national = array(
-			array("american-experience", 630, 408),
-			array("american-masters", 1832, 409),
-			array("antiques-roadshow", 1251, 411),
-			array("call-the-midwife", 1467, 374604),
-			array("charlie-rose", 3516, 376978),
-			array("frontline", 122, 429),
-			array("great-performances", 485, 433),
-			array("independent-lens", 302, 439),
-			array("masterpiece", 489, 455),
-			array("nature", 620, 462),
-			array("nova", 768, 466),
-			array("pbs-newshour", 1822, 473),
-			array("pov", 605, 483));
 
 		// Schedule and COVE API Variables
 		protected $schedule = array();
@@ -33,35 +19,39 @@
 		protected $display = NULL;
 
 		// Class Constructor
-		public function __construct() {
+		public function __construct($national) {
+			if (isset($_GET['portal'])) {
+				$this->portal = sanitize($_GET['portal']);
+				if ($this->portal == null) {
+					$this->portal = "http://video.pbs.org/";
+				}
+				if (substr($this->portal, -1) != '/')
+					$this->portal = $this->portal . '/';
+			} else
+				$this->error = 6;
+
 			if (isset($_GET['callsign'])) {
 				$this->callsign = sanitize($_GET['callsign']);
 			} else
 				$this->error = 1;
 
-			if (isset($_GET['type'])) {
-				$type = (int) sanitize($_GET['type'], 3);
+			if (isset($_GET['program'])) {
+				$type = sanitize($_GET['program'], 4);
 				switch ($type) {
-					case 1:
-						if(isset($_GET['program'])) {
-							$match = nationalMatch($this->national, sanitize($_GET['program']));
-							if ($match != -1) {
-								$this->program[0] = (int) $this->national[$match][1];
-								$this->program[1] = (int) $this->national[$match][2];
-							} else
-								$this->error = 6;
-						} else
-							$this->error = 4;
-						break;
-					case 2:
+					case "Other":
 						if (isset($_GET['schedule_id']) && isset($_GET['cove_id'])) {
 							$this->program[0] = (int) sanitize($_GET['schedule_id'], 3);
 							$this->program[1] = (int) sanitize($_GET['cove_id'], 3);
 						} else
-							$this->error = 5;
+							$this->error = 3;
 						break;
 					default:
-						$this->error = 3;
+						$match = nationalMatch($national, sanitize($_GET['program']));
+						if ($match != -1) {
+							$this->program[0] = (int) $national[$match][1];
+							$this->program[1] = (int) $national[$match][2];
+						} else
+							$this->error = 4;
 						break;
 				}
 			} else
@@ -72,8 +62,16 @@
 		public function buildSchedule($api_key) {
 			$schedule = new ScheduleAPI($this->callsign, $this->program[0], $api_key);
 			$this->schedule = $schedule->getResults();
-			$this->display = "<h1 style=\"text-align:center\">" . $schedule->getTitle() . "</h1>\n<hr />\n";
-			$this->display .= "<p style=\"text-align:justify;\">" . $schedule->getDescription() . "</p>\n";
+
+			if (isset($_GET['title'])) {
+				if (sanitize($_GET['title'], 2) == "True")
+					$this->display = "<h1 style=\"text-align:center\">" . $schedule->getTitle() . "</h1>\n<hr />\n";
+			}
+			if (isset($_GET['description'])) {
+				if (sanitize($_GET['description'], 2) == "True")
+					$this->display .= "<p style=\"text-align:justify;\">" . $schedule->getDescription() . "</p>\n";
+			}
+
 			$this->display .= "<p style=\"text-align:center;font-weight:800\">" . $schedule->getShows() . " Upcoming Show";
 			if ($schedule->getShows() == 0)
 				$this->empty++;
@@ -103,7 +101,6 @@
 				'order_by' => '-airdate');
 			$temp = new coveApi('videos', $api_key, $api_secret);
 			$this->clip = $temp->addParams($params)->getArrayResult();
-
 			if ($this->clip != NULL && $this->clip['results'][0]['partner_player'] != NULL) {
 				$this->switchVideo(" Episode", $this->clip);
 			} else {
@@ -150,20 +147,20 @@
 
 		// Video Builder
 		public function switchVideo($word, $obj) {
-			$this->display .= "<p style=\"text-align:justify\"><b>Watch" . $word . ": <a href=\"" . $obj['results'][0]['episode_url'] . "\" target=\"_top\">" . cleanTitles($obj['results'][0]['title']) . "</a></b><br />";
-			$this->display .= trim($obj['results'][0]['long_description']) . "</p>\n";
-			$this->display .= $obj['results'][0]['partner_player'];
+			$this->display .= "<p style=\"text-align:justify\"><b>Watch" . $word . ": <a href=\"" . $this->portal . "video/" . $obj['results'][0]['tp_media_object_id'] . "\" target=\"_top\">" . cleanTitles($obj['results'][0]['title']) . "</a></b><br />";
+			$this->display .= trim($obj['results'][0]['long_description']) . "</p>\n<div style=\"text-align:center;\">\n";
+			$this->display .= $obj['results'][0]['partner_player'] . "</div>\n";
 		}
 
 		// Display HTML and/or Errors
 		public function displayResults() {
 			if ($this->empty == 2)
-				$this->error = 7;
+				$this->error = 5;
+
 			if ($this->error != 0)
 				$this->display = "<p style=\"text-align:center;\"><b>Debug #" . $this->error . ":</b> An unexpected error has occured.</p>";
-			echo "<link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,300,700,600' rel='stylesheet' type='text/css'>\n
-			<style type=\"text/css\">\nbody, p, h1, h2, h3 {font-family: 'Open Sans', sans-serif;font-size:13px;color:#000}\nh1{font-size:22px;}\n</style>\n
-			<div style=\"width:100%;margin:0px;\">\n" . $this->display . "\n</div>";
+
+			return "<div style=\"width:100%;margin:0px;\">\n" . $this->display . "\n</div>";
 		}
 
 	}
