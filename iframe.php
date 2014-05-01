@@ -27,31 +27,24 @@
 		switch ((int) sanitize($_GET['view'], 3)) {
 			case 2:
 				require('library/widget.inc.php');
-
 				// build the sidebar widget
 				$asset = new BentoEsqueWidget($national);
 				$asset->buildClips($cove_API, $cove_Secret, $schedule_API);
-
-				// style and display
-				echo "<link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,300,700,600' rel='stylesheet' type='text/css'>\n
-					<style type=\"text/css\">\nbody, p, h1, h2, h3 {font-family: 'Open Sans', sans-serif;font-size:13px;color:#000}\nh1{font-size:22px;}\n</style>\n";
-				echo $asset->displayResults();
 				break;
+
 			default:
 				require('library/bentoesque.inc.php');
-
 				// build main content area
 				$asset = new BentoEsque($national);
-
 				$asset->buildSchedule($schedule_API);
 				$asset->buildPlayer($cove_API, $cove_Secret);
-
-				// stylize and display
-				echo "<link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,300,700,600' rel='stylesheet' type='text/css'>\n
-					<style type=\"text/css\">\nbody, p, h1, h2, h3 {font-family: 'Open Sans', sans-serif;font-size:13px;color:#000}\nh1{font-size:22px;}\n</style>\n";
-				echo $asset->displayResults();
 				break;
 		}
+
+		// style and display
+		echo "<link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,300,700,600' rel='stylesheet' type='text/css'>\n
+			<style type=\"text/css\">\nbody, p, h1, h2, h3 {font-family: 'Open Sans', sans-serif;font-size:13px;color:#000}\nh1{font-size:22px;}\n</style>\n";
+		echo $asset->displayResults();
 	}
 
 ?>
